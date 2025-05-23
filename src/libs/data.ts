@@ -20,11 +20,11 @@ export const projectsData: Project[] = [
   {
     id: 1,
     title: 'Aplikasi Pemesanan Makanan',
-    description: 'Platform e-commerce kaya fitur yang dibangun dengan Next.js, Tailwind CSS, dan Stripe untuk pembayaran.',
-    imageUrl: '/images/project1.png', // Pastikan gambar ada di public/images/
+    description: 'Sebuah aplikasi web untuk memesan makanan secara online.',
+    imageUrl: '/mangoman.png', // Pastikan gambar ada di public/images/
     liveUrl: '#',
     repoUrl: '#',
-    tags: ['Next.js', 'Tailwind CSS', 'TypeScript', 'Stripe'],
+    tags: ['PHP Native', 'CSS', 'Javascript',],
   },
   
   // Tambahkan lebih banyak proyek di sini
