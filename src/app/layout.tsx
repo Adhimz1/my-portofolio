@@ -4,6 +4,7 @@ import './globals.css' // <--- PERBAIKAN DI SINI
 import Header from '@/components/Header'
 import Footer from '@/components/Footer'
 
+
 // ... sisa kode layout.tsx
 
 const inter = Inter({ subsets: ['latin'] })
@@ -20,7 +21,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="id">
-      <body className={`${inter.className} bg-gray-900 text-gray-100 flex flex-col min-h-screen`}>
+      <body className={`${inter.className} bg-black text-gray-100 flex flex-col min-h-screen`}>
         <Header />
         <main className="flex-grow container mx-auto px-4 py-8">
           {children}
