@@ -2,20 +2,12 @@
 @tailwind components;
 @tailwind utilities;
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
-
 body {
-  color: var(--foreground);
-  background: var(--background);
-  font-family: Arial, Helvetica, sans-serif;
+  @apply bg-primary-dark text-text-light; /* atau bg-gray-900 text-gray-100 jika pakai default tailwind */
+  font-family: 'Inter', sans-serif; /* Contoh font, pastikan diimpor di layout.tsx */
+}
+
+/* Anda bisa menambahkan style global kustom lainnya di sini */
+.section-title {
+  @apply text-3xl font-bold mb-8 text-center text-accent-blue;
 }
