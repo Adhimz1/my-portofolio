@@ -11,25 +11,25 @@ export interface Project {
 }
 
 export interface Skill {
-  id: number;
   name: string;
+  id: number;
   icon: string; // Path ke file gambar/icon di public/icons/
 }
 
 export const projectsData: Project[] = [
   {
     id: 1,
-    title: 'Aplikasi Pemesanan Makanan',
-    description: 'Sebuah aplikasi web untuk memesan makanan secara online.',
-    imageUrl: '/mangoman.png', // Pastikan gambar ada di public/images/
+    title: 'Food Ordering Application',
+    description: 'A web application for ordering food online.',
+    imageUrl: '/mangoman.png', // Make sure the image exists in public/images/
     liveUrl: '#',
     repoUrl: '#',
     tags: ['PHP Native', 'CSS', 'Javascript'],
   },
-  // Tambahkan proyek lain di sini
+  // Add more projects here
 ];
 
 export const skillsData: Skill[] = [
-  { id: 1, name: 'PHOTOSHOP', icon: '/icons/photoshop.png' },
+    { id: 1, icon: '/icons/photoshop.png', name: '' },
   // Tambahkan skill lainnya dengan path icon sesuai nama file di public/icons/
 ];

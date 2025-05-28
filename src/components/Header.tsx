@@ -16,12 +16,12 @@ const Header = () => {
         </Link>
         
         <div className="hidden md:flex items-center space-x-6">
-          {[
-            { href: '/#about', label: 'Tentang' },
-            { href: '/#projects', label: 'Proyek' },
-            { href: '/#skills', label: 'Keahlian' },
-            { href: '/#contact', label: 'Kontak' }
-          ].map((item) => (
+            {[
+            { href: '/#about', label: 'About' },
+            { href: '/#projects', label: 'Projects' },
+            { href: '/#skills', label: 'Skills' },
+            { href: '/#contact', label: 'Contact' }
+            ].map((item) => (
             <Link
               key={item.href}
               href={item.href}
@@ -30,7 +30,7 @@ const Header = () => {
               {item.label}
               <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-sky-400 group-hover:w-full transition-all duration-300"></span>
             </Link>
-          ))}
+            ))}
           
           <Link 
             href="/resume" 
