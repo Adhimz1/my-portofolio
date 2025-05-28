@@ -31,5 +31,9 @@ export const projectsData: Project[] = [
 
 export const skillsData: Skill[] = [
     { id: 1, icon: '/icons/photoshop.png', name: '' },
+    { id: 2, icon: '/icons/Canva_Logo.svg.png', name: '' },
+    { id: 3, icon: '/icons/figma-logo-logo.png', name: '' },
+    { id: 4, icon: '/icons/MySQL_logo.svg.png', name: '' },
+
   // Tambahkan skill lainnya dengan path icon sesuai nama file di public/icons/
 ];

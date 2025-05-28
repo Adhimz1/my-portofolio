@@ -2,8 +2,8 @@ import Image from 'next/image';
 import { BackgroundBeams } from '@/components/ui/background-beams';
 import { projectsData, skillsData } from '@/libs/data';
 import ProjectCard from '@/components/ProjectCard';
-import Buttontest from '@/components/Buttontest';
-import Skills from '@/components/Skills';
+import Buttontest from '@/components/ButtonFullBlue';
+import Skills from '@/components/SkillsCard';
 
 export default function HomePage() {
   return (
@@ -94,7 +94,11 @@ export default function HomePage() {
       {/* Projects Section */}
       <section id="projects" className="py-16">
         <div className="container mx-auto px-6">
-          <h2 className="text-3xl font-bold mb-12 text-center text-sky-400">My Projects</h2>
+            <h2 className="text-2xl md:text-3xl font-bold mb-8 text-center">
+              <span className="bg-clip-text text-transparent bg-gradient-to-r from-sky-400 to-blue-500">
+              My Projects
+              </span>
+            </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
             {projectsData.map((project) => (
               <ProjectCard key={project.id} project={project} />
