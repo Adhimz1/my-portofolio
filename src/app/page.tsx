@@ -32,7 +32,7 @@ export default function HomePage() {
             </div>
 
             <h1 className="text-4xl md:text-6xl font-extrabold mb-4 bg-clip-text text-transparent bg-gradient-to-r from-sky-400 to-blue-600 leading-tight py-1">
-              Hello, I'm <span className="text-sky-400">Adhim</span>
+              Hello, I&apos;m <span className="text-sky-400">Adhim</span>
             </h1>
 
             <p className="text-lg md:text-xl text-gray-300 mb-8 max-w-2xl mx-auto">
@@ -67,7 +67,7 @@ export default function HomePage() {
 
             <div className="bg-gray-800/50 backdrop-blur-sm border border-gray-700 rounded-lg p-6 md:p-8 space-y-4">
               <p className="text-base md:text-lg text-gray-300 leading-relaxed">
-                I'm an experienced <span className="text-sky-400 font-medium">Full-stack Developer</span> building innovative digital solutions. Proficient in <span className="text-sky-400">React</span>, <span className="text-sky-400">Next.js</span>, and <span className="text-sky-400">Node.js</span>.
+                I&apos;m an experienced <span className="text-sky-400 font-medium">Full-stack Developer</span> building innovative digital solutions. Proficient in <span className="text-sky-400">React</span>, <span className="text-sky-400">Next.js</span>, and <span className="text-sky-400">Node.js</span>.
               </p>
               <p className="text-base md:text-lg text-gray-300 leading-relaxed">
                 Focused on writing <span className="text-sky-400">well-structured</span> and <span className="text-sky-400">high-performance</span> code with strong emphasis on optimal user experience.
