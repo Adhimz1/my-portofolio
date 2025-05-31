@@ -37,29 +37,40 @@ export default function HomePage() {
   const [darkMode, setDarkMode] = useState(false);
   const [mounted, setMounted] = useState(false);
 
-  // Initialize theme after mount
+  // Responsive theme update on system preference change
   useEffect(() => {
     setMounted(true);
     const storedTheme = localStorage.getItem('theme');
     const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-    
-    // Only set dark mode if explicitly stored or system preference (no default)
+
     const initialDarkMode = storedTheme === 'dark' || (!storedTheme && prefersDark);
     setDarkMode(initialDarkMode);
-    
-    // Apply to HTML element
+
     const root = document.documentElement;
     if (initialDarkMode) {
       root.classList.add('dark');
     } else {
       root.classList.remove('dark');
     }
+
+    // Listen for system theme changes (for responsiveness)
+    const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+    const handleChange = (e: MediaQueryListEvent) => {
+      if (!localStorage.getItem('theme')) {
+        setDarkMode(e.matches);
+      }
+    };
+    mediaQuery.addEventListener('change', handleChange);
+
+    return () => {
+      mediaQuery.removeEventListener('change', handleChange);
+    };
   }, []);
 
   // Update dark mode class and localStorage when state changes
   useEffect(() => {
     if (!mounted) return;
-    
+
     const root = document.documentElement;
     if (darkMode) {
       root.classList.add('dark');
@@ -71,7 +82,11 @@ export default function HomePage() {
   }, [darkMode, mounted]);
 
   const toggleDarkMode = () => {
-    setDarkMode(!darkMode);
+    // If user toggles, override system preference
+    setDarkMode((prev) => {
+      localStorage.setItem('theme', !prev ? 'dark' : 'light');
+      return !prev;
+    });
   };
 
   // Show loading state until mounted
@@ -88,7 +103,8 @@ export default function HomePage() {
       {/* Dark Mode Toggle Button */}
       <button
         onClick={toggleDarkMode}
-        className="fixed bottom-5 left-5 z-[999] p-2.5 bg-gray-100 dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-full shadow-xl hover:bg-gray-200 dark:hover:bg-gray-700 transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-white dark:focus-visible:ring-offset-gray-900 focus-visible:ring-sky-500"
+        className="fixed bottom-5 left-5 z-[999] p-2.5 bg-gray-100 dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-full shadow-xl hover:bg-gray-200 dark:hover:bg-gray-700 transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-white dark:focus-visible:ring-offset-gray-900 focus-visible:ring-sky-500
+        sm:bottom-5 sm:left-5"
         aria-label="Toggle theme"
       >
         {darkMode ? (
