@@ -4,19 +4,15 @@
 import Image from 'next/image';
 import { motion } from 'framer-motion';
 import { useState, useEffect } from 'react';
-import { SunIcon, MoonIcon } from '@heroicons/react/24/outline'; // Ikon untuk tombol tema
-
-// Impor komponen Anda (sesuaikan path jika perlu)
+import { SunIcon, MoonIcon } from '@heroicons/react/24/outline';
 import { BackgroundBeams } from '@/components/ui/background-beams';
 import Buttontest from '@/components/ButtonFullBlue';
 import SkillsComponent from '@/components/SkillsCard';
 import ProjectCard from '@/components/ProjectCard';
-
-// Impor data Anda
 import { projectsData, skillsData } from '@/libs/data';
 
 export default function HomePage() {
-  // Varian animasi
+  // Animation variants
   const heroContainerVariants = {
     hidden: { opacity: 0 },
     visible: {
@@ -37,23 +33,34 @@ export default function HomePage() {
     visible: { opacity: 1, y: 0, transition: { duration: 0.7, ease: 'easeOut', staggerChildren: 0.1 } },
   };
 
-  // State dan logika untuk Light/Dark Mode
-  const [darkMode, setDarkMode] = useState(false); // Default value, akan di-override
-  const [isThemeInitialized, setIsThemeInitialized] = useState(false);
+  // State for dark mode
+  const [darkMode, setDarkMode] = useState(false);
+  const [mounted, setMounted] = useState(false);
 
-  // Efek untuk sinkronisasi awal dengan tema yang sudah ada di <html> atau localStorage
+  // Initialize theme after mount
   useEffect(() => {
-    const root = window.document.documentElement;
-    const initialThemeIsDark = root.classList.contains('dark');
-    setDarkMode(initialThemeIsDark);
-    setIsThemeInitialized(true); // Tandai bahwa tema sudah diinisialisasi dari klien
+    setMounted(true);
+    const storedTheme = localStorage.getItem('theme');
+    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    
+    // Only set dark mode if explicitly stored or system preference (no default)
+    const initialDarkMode = storedTheme === 'dark' || (!storedTheme && prefersDark);
+    setDarkMode(initialDarkMode);
+    
+    // Apply to HTML element
+    const root = document.documentElement;
+    if (initialDarkMode) {
+      root.classList.add('dark');
+    } else {
+      root.classList.remove('dark');
+    }
   }, []);
 
-  // Efek untuk mengubah kelas pada <html> dan menyimpan ke localStorage saat state darkMode berubah
+  // Update dark mode class and localStorage when state changes
   useEffect(() => {
-    if (!isThemeInitialized) return; // Jangan jalankan sebelum inisialisasi tema awal selesai
-
-    const root = window.document.documentElement;
+    if (!mounted) return;
+    
+    const root = document.documentElement;
     if (darkMode) {
       root.classList.add('dark');
       localStorage.setItem('theme', 'dark');
@@ -61,18 +68,16 @@ export default function HomePage() {
       root.classList.remove('dark');
       localStorage.setItem('theme', 'light');
     }
-  }, [darkMode, isThemeInitialized]);
+  }, [darkMode, mounted]);
 
   const toggleDarkMode = () => {
-    setDarkMode(prevMode => !prevMode);
+    setDarkMode(!darkMode);
   };
 
-  // Jika tema belum diinisialisasi oleh klien, tampilkan placeholder/loading
-  // Ini sangat penting untuk menghindari Hydration Mismatch
-  if (!isThemeInitialized) {
+  // Show loading state until mounted
+  if (!mounted) {
     return (
       <div className="flex items-center justify-center min-h-screen bg-white dark:bg-gray-900 transition-colors duration-300">
-        {/* Anda bisa mengganti ini dengan komponen skeleton loading yang lebih canggih */}
         <div className="w-16 h-16 border-4 border-dashed rounded-full animate-spin border-sky-500 dark:border-sky-400"></div>
       </div>
     );
@@ -80,26 +85,22 @@ export default function HomePage() {
 
   return (
     <>
-      {/* Tombol Toggle Light/Dark Mode di pojok kiri bawah */}
-      {isThemeInitialized && ( // Pastikan tombol hanya render setelah tema diketahui
-        <button
-          onClick={toggleDarkMode}
-          className="fixed bottom-5 left-5 z-[999] p-2.5 bg-gray-100 dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-full shadow-xl hover:bg-gray-200 dark:hover:bg-gray-700 transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-white dark:focus-visible:ring-offset-gray-900 focus-visible:ring-sky-500"
-          aria-label="Toggle theme"
-        >
-          {darkMode ? (
-            <SunIcon className="w-5 h-5 text-yellow-400" />
-          ) : (
-            <MoonIcon className="w-5 h-5 text-sky-500" />
-          )}
-        </button>
-      )}
+      {/* Dark Mode Toggle Button */}
+      <button
+        onClick={toggleDarkMode}
+        className="fixed bottom-5 left-5 z-[999] p-2.5 bg-gray-100 dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-full shadow-xl hover:bg-gray-200 dark:hover:bg-gray-700 transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-white dark:focus-visible:ring-offset-gray-900 focus-visible:ring-sky-500"
+        aria-label="Toggle theme"
+      >
+        {darkMode ? (
+          <SunIcon className="w-5 h-5 text-yellow-400" />
+        ) : (
+          <MoonIcon className="w-5 h-5 text-sky-500" />
+        )}
+      </button>
 
-      {/* Wrapper untuk bagian yang memiliki BackgroundBeams */}
+      {/* Wrapper for BackgroundBeams */}
       <div className="relative">
-        {/* BackgroundBeams - pastikan komponen ini tidak 'fixed' secara internal */}
         <div className="absolute inset-x-0 top-0 h-[140vh] md:h-[120vh] -z-10 pointer-events-none">
-          {/* Sesuaikan 'h-[...]' agar efek beams berhenti sebelum bagian Projects */}
           <BackgroundBeams className="w-full h-full" />
         </div>
 
@@ -120,12 +121,10 @@ export default function HomePage() {
                 variants={heroImageVariants}
               >
                 <Image
-                  src="/me.png" // Pastikan path benar
+                  src="/me.png"
                   alt="Profile Photo Adhim"
                   fill
-                  className="rounded-full object-cover object-center
-                            border-4 border-sky-300 dark:border-sky-500/40 shadow-2xl shadow-sky-400/30 dark:shadow-sky-500/20
-                            group-hover:scale-105 group-hover:shadow-sky-500/40 dark:group-hover:shadow-sky-400/40 transition-all duration-300"
+                  className="rounded-full object-cover object-center border-4 border-sky-300 dark:border-sky-500/40 shadow-2xl shadow-sky-400/30 dark:shadow-sky-500/20 group-hover:scale-105 group-hover:shadow-sky-500/40 dark:group-hover:shadow-sky-400/40 transition-all duration-300"
                   priority
                   quality={85}
                   sizes="(max-width: 640px) 12rem, (max-width: 768px) 14rem, 16rem"
@@ -199,7 +198,7 @@ export default function HomePage() {
               </motion.div>
 
               <div className="mt-8 grid grid-cols-2 sm:grid-cols-4 gap-3">
-                {['React', 'Next.js', 'TypeScript', 'Node.js', 'Tailwind CSS', 'Git'].map((tech, index) => ( // Menambahkan beberapa tech lagi
+                {['React', 'Next.js', 'TypeScript', 'Node.js', 'Tailwind CSS', 'Git'].map((tech, index) => (
                   <motion.div
                     key={tech}
                     className="bg-gray-100 dark:bg-gray-700/50 border border-gray-200 dark:border-gray-600/80 rounded-lg py-2.5 px-3 text-center hover:bg-gray-200 dark:hover:bg-sky-800/40 hover:border-sky-400 dark:hover:border-sky-500/60 transition-all duration-200 shadow-sm hover:shadow-md"
@@ -215,13 +214,12 @@ export default function HomePage() {
             </div>
           </div>
         </motion.section>
-      </div> {/* Penutup div wrapper untuk BackgroundBeams */}
+      </div>
 
-
-      {/* Bagian di bawah ini TIDAK akan memiliki BackgroundBeams */}
+      {/* Projects Section */}
       <motion.section
         id="projects"
-        className="py-16 bg-gray-100 dark:bg-gray-900/70" // Sedikit transparan untuk dark agar beda
+        className="py-16 bg-gray-100 dark:bg-gray-900/70"
         variants={sectionVariants}
         initial="hidden"
         whileInView="visible"
@@ -246,7 +244,6 @@ export default function HomePage() {
                 viewport={{ once: true }}
                 transition={{ duration: 0.5, delay: index * 0.1, ease: "easeOut" }}
               >
-                {/* Pastikan ProjectCard.tsx diupdate untuk styling light/dark mode */}
                 <ProjectCard project={project} />
               </motion.div>
             ))}
@@ -259,26 +256,22 @@ export default function HomePage() {
         </div>
       </motion.section>
 
-      <motion.div // Wrapper untuk SkillsComponent
+      {/* Skills Section */}
+      <motion.div
         variants={sectionVariants}
         initial="hidden"
         whileInView="visible"
         viewport={{ once: true, amount: 0.2 }}
-        className="bg-white dark:bg-gray-800/50 dark:backdrop-blur-md" // Atur bg di sini
+        className="bg-white dark:bg-gray-800/50 dark:backdrop-blur-md"
       >
-        {/* Pastikan SkillsComponent.tsx diupdate untuk styling light/dark mode */}
-        <SkillsComponent
-          skills={skillsData}
-          // className tidak perlu di sini jika sudah diatur di motion.div
-          // kecuali jika ada styling spesifik yang ingin ditambahkan dari sini
-        />
-        {/* Penanda ID untuk smooth scroll, disembunyikan secara visual */}
+        <SkillsComponent skills={skillsData} />
         <div id="skills" className="sr-only"></div>
       </motion.div>
 
+      {/* Contact Section */}
       <motion.section
         id="contact"
-        className="py-16 bg-gray-100 dark:bg-gray-900/70" // Background berbeda untuk light/dark
+        className="py-16 bg-gray-100 dark:bg-gray-900/70"
         variants={sectionVariants}
         initial="hidden"
         whileInView="visible"

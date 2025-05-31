@@ -1,51 +1,55 @@
 // src/app/layout.tsx
-import type { Metadata } from 'next'
-import { Inter } from 'next/font/google'
-import './globals.css'
-import Header from '@/components/Header'
-import Footer from '@/components/Footer'
-import Script from 'next/script'
+import type { Metadata } from 'next';
+import { Inter } from 'next/font/google';
+import './globals.css';
+import Header from '@/components/Header';
+import Footer from '@/components/Footer';
+import Script from 'next/script';
 
-const inter = Inter({ subsets: ['latin'] })
+const inter = Inter({ subsets: ['latin'] });
 
 export const metadata: Metadata = {
   title: 'Adhim - Portofolio',
   description: 'Portofolio Web Developer oleh Adhim',
-}
+};
 
 export default function RootLayout({
   children,
 }: {
-  children: React.ReactNode
+  children: React.ReactNode;
 }) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <body
         className={`${inter.className} bg-white dark:bg-gray-900 text-gray-800 dark:text-gray-100 flex flex-col min-h-screen transition-colors duration-300`}
       >
-        <Script id="theme-script" strategy="beforeInteractive">{`
-          (function() {
-            function getInitialColorMode() {
-              const persistedColorPreference = window.localStorage.getItem('theme');
-              const hasPersistedPreference = typeof persistedColorPreference === 'string';
-              if (hasPersistedPreference) {
-                return persistedColorPreference;
+        <Script id="theme-script" strategy="beforeInteractive">
+          {`
+            (function() {
+              function getInitialColorMode() {
+                const persistedColorPreference = window.localStorage.getItem('theme');
+                const hasPersistedPreference = typeof persistedColorPreference === 'string';
+                if (hasPersistedPreference) {
+                  return persistedColorPreference;
+                }
+                const mql = window.matchMedia('(prefers-color-scheme: dark)');
+                const hasMediaQueryPreference = typeof mql.matches === 'boolean';
+                if (hasMediaQueryPreference) {
+                  return mql.matches ? 'dark' : 'light';
+                }
+                return 'light'; // Default ke light mode
               }
-              const mql = window.matchMedia('(prefers-color-scheme: dark)');
-              const hasMediaQueryPreference = typeof mql.matches === 'boolean';
-              if (hasMediaQueryPreference) {
-                return mql.matches ? 'dark' : 'light';
+              const colorMode = getInitialColorMode();
+              const root = document.documentElement;
+              if (colorMode === 'dark') {
+                root.classList.add('dark');
+              } else {
+                root.classList.remove('dark');
               }
-              return 'dark'; // Default ke dark jika tidak ada preferensi
-            }
-            const colorMode = getInitialColorMode();
-            if (colorMode === 'dark') {
-              document.documentElement.classList.add('dark');
-            } else {
-              document.documentElement.classList.remove('dark');
-            }
-          })();
-        `}</Script>
+              root.style.setProperty('--initial-color-mode', colorMode);
+            })();
+          `}
+        </Script>
         <Header />
         <main className="flex-grow container mx-auto px-4 py-8">
           {children}
@@ -53,5 +57,5 @@ export default function RootLayout({
         <Footer />
       </body>
     </html>
-  )
+  );
 }
