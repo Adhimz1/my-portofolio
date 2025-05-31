@@ -3,30 +3,22 @@
 
 import Link from 'next/link';
 import { useState, useEffect } from 'react';
-import { motion } from 'framer-motion';
-import { SunIcon, MoonIcon, Bars3Icon, XMarkIcon } from '@heroicons/react/24/outline';
+// import { motion } from 'framer-motion';
+// import { SunIcon, MoonIcon, Bars3Icon, XMarkIcon } from '@heroicons/react/24/outline';
 
 const Header = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const [darkMode, setDarkMode] = useState(false); // Nilai awal tidak penting, akan di-override
-  const [isMounted, setIsMounted] = useState(false); // Untuk mencegah rendering sebelum tema diketahui
+  const [darkMode, setDarkMode] = useState(false);
+  const [isMounted, setIsMounted] = useState(false);
 
-  // Efek untuk memuat tema dari localStorage/sistem dan menandai komponen sudah di-mount
   useEffect(() => {
     setIsMounted(true);
-    // const storedTheme = localStorage.getItem('theme');
-    // Tidak perlu set kelas di sini jika script di layout.tsx sudah benar
-    // dan kita hanya ingin state komponen sinkron dengan <html>
-    // cukup baca dari <html>
     const rootHasDarkClass = document.documentElement.classList.contains('dark');
     setDarkMode(rootHasDarkClass);
-
   }, []);
 
-  // Efek untuk mengubah tema saat state darkMode berubah
   useEffect(() => {
-    if (!isMounted) return; // Jangan jalankan jika belum di-mount
-
+    if (!isMounted) return;
     if (darkMode) {
       document.documentElement.classList.add('dark');
       localStorage.setItem('theme', 'dark');
@@ -35,7 +27,6 @@ const Header = () => {
       localStorage.setItem('theme', 'light');
     }
   }, [darkMode, isMounted]);
-
 
   const toggleDarkMode = () => {
     setDarkMode(prevMode => !prevMode);
@@ -54,7 +45,7 @@ const Header = () => {
 
   useEffect(() => {
     const handleResize = () => {
-      if (window.innerWidth >= 768) { // md breakpoint Tailwind
+      if (window.innerWidth >= 768) {
         setIsMobileMenuOpen(false);
       }
     };
@@ -89,23 +80,19 @@ const Header = () => {
           </div>
 
           {/* Tombol Toggle Dark Mode */}
-          {isMounted && ( // Hanya render tombol jika komponen sudah di-mount dan tema diketahui
+          {/* Icon sudah dihapus */}
+          {isMounted && (
             <button
               onClick={toggleDarkMode}
               className="p-2 ml-4 rounded-full text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-500 transition-colors duration-200"
               aria-label="Toggle theme"
             >
-              {darkMode ? (
-                <SunIcon className="w-5 h-5 text-yellow-400" />
-              ) : (
-                <MoonIcon className="w-5 h-5 text-sky-500" />
-              )}
+              {/* Kosong, icon dihapus */}
             </button>
           )}
-          {!isMounted && ( // Placeholder untuk tombol tema saat belum mounted
-             <div className="p-2 ml-4 w-[36px] h-[36px]"></div> // Sesuaikan ukuran agar layout tidak bergeser
+          {!isMounted && (
+            <div className="p-2 ml-4 w-[36px] h-[36px]"></div>
           )}
-
 
           {/* Tombol Hamburger untuk Mobile */}
           <div className="md:hidden ml-2">
@@ -116,23 +103,17 @@ const Header = () => {
               aria-controls="mobile-menu"
             >
               <span className="sr-only">Open main menu</span>
-              {isMobileMenuOpen ? (
-                <XMarkIcon className="block h-6 w-6" aria-hidden="true" />
-              ) : (
-                <Bars3Icon className="block h-6 w-6" aria-hidden="true" />
-              )}
+              {/* Icon hamburger dihapus */}
             </button>
           </div>
         </div>
       </nav>
 
       {/* Menu Mobile Dropdown */}
-      <motion.div
+      {/* motion.div dihapus, ganti div biasa */}
+      <div
         id="mobile-menu"
         className={`md:hidden ${isMobileMenuOpen ? 'block' : 'hidden'} border-t border-gray-200 dark:border-gray-700 bg-white/95 dark:bg-gray-900/95 backdrop-blur-sm absolute w-full shadow-lg`}
-        initial={{ opacity: 0, y: -20 }}
-        animate={isMobileMenuOpen ? { opacity: 1, y: 0 } : { opacity: 0, y: -20 }}
-        transition={{ duration: 0.3, ease: "easeInOut" }}
       >
         <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3">
           {navItems.map((item) => (
@@ -140,13 +121,13 @@ const Header = () => {
               key={item.href}
               href={item.href}
               className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-sky-600 dark:hover:text-sky-400 transition-colors"
-              onClick={toggleMobileMenu} // Tutup menu saat item diklik
+              onClick={toggleMobileMenu}
             >
               {item.label}
             </Link>
           ))}
         </div>
-      </motion.div>
+      </div>
     </header>
   );
 };
