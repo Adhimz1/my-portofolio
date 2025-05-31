@@ -1,156 +1,326 @@
+// src/app/page.tsx
+'use client';
+
 import Image from 'next/image';
+import { motion } from 'framer-motion';
+import { useState, useEffect } from 'react';
+import { SunIcon, MoonIcon } from '@heroicons/react/24/outline'; // Ikon untuk tombol tema
+
+// Impor komponen Anda (sesuaikan path jika perlu)
 import { BackgroundBeams } from '@/components/ui/background-beams';
-import { projectsData, skillsData } from '@/libs/data';
-import ProjectCard from '@/components/ProjectCard';
 import Buttontest from '@/components/ButtonFullBlue';
-import Skills from '@/components/SkillsCard';
+import SkillsComponent from '@/components/SkillsCard';
+import ProjectCard from '@/components/ProjectCard';
+
+// Impor data Anda
+import { projectsData, skillsData } from '@/libs/data';
 
 export default function HomePage() {
+  // Varian animasi
+  const heroContainerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: { delayChildren: 0.3, staggerChildren: 0.2 },
+    },
+  };
+  const heroItemVariants = {
+    hidden: { opacity: 0, y: 20 },
+    visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: 'easeOut' } },
+  };
+  const heroImageVariants = {
+    hidden: { opacity: 0, scale: 0.8, y: 20 },
+    visible: { opacity: 1, scale: 1, y: 0, transition: { duration: 0.7, ease: [0.16, 1, 0.3, 1] } },
+  };
+  const sectionVariants = {
+    hidden: { opacity: 0, y: 50 },
+    visible: { opacity: 1, y: 0, transition: { duration: 0.7, ease: 'easeOut', staggerChildren: 0.1 } },
+  };
+
+  // State dan logika untuk Light/Dark Mode
+  const [darkMode, setDarkMode] = useState(false); // Default value, akan di-override
+  const [isThemeInitialized, setIsThemeInitialized] = useState(false);
+
+  // Efek untuk sinkronisasi awal dengan tema yang sudah ada di <html> atau localStorage
+  useEffect(() => {
+    const root = window.document.documentElement;
+    const initialThemeIsDark = root.classList.contains('dark');
+    setDarkMode(initialThemeIsDark);
+    setIsThemeInitialized(true); // Tandai bahwa tema sudah diinisialisasi dari klien
+  }, []);
+
+  // Efek untuk mengubah kelas pada <html> dan menyimpan ke localStorage saat state darkMode berubah
+  useEffect(() => {
+    if (!isThemeInitialized) return; // Jangan jalankan sebelum inisialisasi tema awal selesai
+
+    const root = window.document.documentElement;
+    if (darkMode) {
+      root.classList.add('dark');
+      localStorage.setItem('theme', 'dark');
+    } else {
+      root.classList.remove('dark');
+      localStorage.setItem('theme', 'light');
+    }
+  }, [darkMode, isThemeInitialized]);
+
+  const toggleDarkMode = () => {
+    setDarkMode(prevMode => !prevMode);
+  };
+
+  // Jika tema belum diinisialisasi oleh klien, tampilkan placeholder/loading
+  // Ini sangat penting untuk menghindari Hydration Mismatch
+  if (!isThemeInitialized) {
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-white dark:bg-gray-900 transition-colors duration-300">
+        {/* Anda bisa mengganti ini dengan komponen skeleton loading yang lebih canggih */}
+        <div className="w-16 h-16 border-4 border-dashed rounded-full animate-spin border-sky-500 dark:border-sky-400"></div>
+      </div>
+    );
+  }
+
   return (
     <>
-      {/* Hero Section */}
-      <section id="hero" className="py-16 md:py-24 text-center relative">
-        <div className="container mx-auto px-6 relative z-10">
-          <div className="absolute inset-0 -z-10">
-            <BackgroundBeams />
-          </div>
+      {/* Tombol Toggle Light/Dark Mode di pojok kiri bawah */}
+      {isThemeInitialized && ( // Pastikan tombol hanya render setelah tema diketahui
+        <button
+          onClick={toggleDarkMode}
+          className="fixed bottom-5 left-5 z-[999] p-2.5 bg-gray-100 dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-full shadow-xl hover:bg-gray-200 dark:hover:bg-gray-700 transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-white dark:focus-visible:ring-offset-gray-900 focus-visible:ring-sky-500"
+          aria-label="Toggle theme"
+        >
+          {darkMode ? (
+            <SunIcon className="w-5 h-5 text-yellow-400" />
+          ) : (
+            <MoonIcon className="w-5 h-5 text-sky-500" />
+          )}
+        </button>
+      )}
 
-          <div className="flex flex-col items-center justify-center min-h-[70vh]">
-            {/* Profile Photo */}
-            <div className="relative w-64 h-64 md:w-80 md:h-80 mb-8 group">
-              <Image
-                src="/me.png"
-                alt="Profile Photo"
-                fill
-                className="rounded-full object-cover object-center 
-                          border-4 border-sky-400/30 shadow-xl shadow-sky-400/30 
-                          group-hover:scale-105 transition-transform duration-300"
-                priority
-                quality={100}
-                sizes="(max-width: 768px) 100vw, 50vw"
-              />
-            </div>
+      {/* Wrapper untuk bagian yang memiliki BackgroundBeams */}
+      <div className="relative">
+        {/* BackgroundBeams - pastikan komponen ini tidak 'fixed' secara internal */}
+        <div className="absolute inset-x-0 top-0 h-[140vh] md:h-[120vh] -z-10 pointer-events-none">
+          {/* Sesuaikan 'h-[...]' agar efek beams berhenti sebelum bagian Projects */}
+          <BackgroundBeams className="w-full h-full" />
+        </div>
 
-            <h1 className="text-4xl md:text-6xl font-extrabold mb-4 bg-clip-text text-transparent bg-gradient-to-r from-sky-400 to-blue-600 leading-tight py-1">
-              Hello, I&apos;m <span className="text-sky-400">Adhim</span>
-            </h1>
-
-            <p className="text-lg md:text-xl text-gray-300 mb-8 max-w-2xl mx-auto">
-              A passionate Web Developer building modern and responsive web applications.
-            </p>
-
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Buttontest href='/#projects'>My Projects</Buttontest>
-              <a
-                href="#contact"
-                className="border border-sky-400 text-sky-400 hover:bg-sky-400/10 font-bold py-3 px-6 rounded-lg text-base transition-all duration-300 transform hover:-translate-y-1"
+        {/* Hero Section */}
+        <section
+          id="hero"
+          className="py-16 md:py-24 text-center relative min-h-[calc(100vh-80px)] flex items-center justify-center overflow-hidden"
+        >
+          <div className="container mx-auto px-6 relative z-10">
+            <motion.div
+              className="flex flex-col items-center justify-center"
+              variants={heroContainerVariants}
+              initial="hidden"
+              animate="visible"
+            >
+              <motion.div
+                className="relative w-48 h-48 sm:w-56 sm:h-56 md:w-64 md:h-64 mb-8 group"
+                variants={heroImageVariants}
               >
-                Contact Me
-              </a>
-            </div>
-          </div>
-        </div>
-      </section>
+                <Image
+                  src="/me.png" // Pastikan path benar
+                  alt="Profile Photo Adhim"
+                  fill
+                  className="rounded-full object-cover object-center
+                            border-4 border-sky-300 dark:border-sky-500/40 shadow-2xl shadow-sky-400/30 dark:shadow-sky-500/20
+                            group-hover:scale-105 group-hover:shadow-sky-500/40 dark:group-hover:shadow-sky-400/40 transition-all duration-300"
+                  priority
+                  quality={85}
+                  sizes="(max-width: 640px) 12rem, (max-width: 768px) 14rem, 16rem"
+                />
+              </motion.div>
 
-      {/* About Section */}
-      <section id="about" className="py-12 md:py-14 relative group">
-        <div className="absolute inset-0 bg-gradient-to-br from-sky-900/20 to-gray-900/50 rounded-xl -z-10" />
+              <motion.h1
+                className="text-4xl sm:text-5xl md:text-6xl font-extrabold mb-4 bg-clip-text text-transparent bg-gradient-to-r from-sky-500 via-cyan-500 to-blue-500 dark:from-sky-400 dark:via-cyan-400 dark:to-blue-500 leading-tight py-1"
+                variants={heroItemVariants}
+              >
+                Hello, I&apos;m <span className="text-sky-600 dark:text-sky-300">Adhim</span>
+              </motion.h1>
 
-        <div className="container mx-auto px-4 sm:px-6">
-          <div className="max-w-3xl mx-auto">
-            <h2 className="text-3xl md:text-4xl font-bold mb-8 text-center">
-              <span className="bg-clip-text text-transparent bg-gradient-to-r from-sky-400 to-blue-500">
-                About Me
-              </span>
-              <div className="w-20 h-0.5 bg-gradient-to-r from-sky-400 to-blue-600 mx-auto mt-3 rounded-full" />
-            </h2>
+              <motion.p
+                className="text-lg md:text-xl text-gray-600 dark:text-gray-300 mb-10 max-w-2xl mx-auto"
+                variants={heroItemVariants}
+              >
+                A passionate Web Developer building modern and responsive web applications.
+              </motion.p>
 
-            <div className="bg-gray-800/50 backdrop-blur-sm border border-gray-700 rounded-lg p-6 md:p-8 space-y-4">
-              <p className="text-base md:text-lg text-gray-300 leading-relaxed">
-                I&apos;m an experienced <span className="text-sky-400 font-medium">Full-stack Developer</span> building innovative digital solutions. Proficient in <span className="text-sky-400">React</span>, <span className="text-sky-400">Next.js</span>, and <span className="text-sky-400">Node.js</span>.
-              </p>
-              <p className="text-base md:text-lg text-gray-300 leading-relaxed">
-                Focused on writing <span className="text-sky-400">well-structured</span> and <span className="text-sky-400">high-performance</span> code with strong emphasis on optimal user experience.
-              </p>
-              <p className="text-base md:text-lg text-gray-300 leading-relaxed">
-                Active in <span className="text-sky-400">open-source</span> and continuously developing skills to stay relevant in the dynamic industry.
-              </p>
-            </div>
-
-            <div className="mt-8 grid grid-cols-2 md:grid-cols-4 gap-3">
-              {['React', 'Next.js', 'TypeScript', 'Node.js'].map((tech) => (
-                <div
-                  key={tech}
-                  className="bg-gray-800/70 border border-gray-700 rounded-md py-2 px-3 text-center hover:bg-sky-900/20 transition-colors"
+              <motion.div
+                className="flex flex-col sm:flex-row gap-4 sm:gap-5 justify-center"
+                variants={heroItemVariants}
+              >
+                <Buttontest href="/#projects">My Projects</Buttontest>
+                <a
+                  href="#contact"
+                  className="border border-sky-500 dark:border-sky-500 text-sky-600 dark:text-sky-400 hover:bg-sky-500/10 dark:hover:bg-sky-500/15 hover:text-sky-700 dark:hover:text-sky-300 font-semibold py-3 px-6 rounded-lg text-base transition-all duration-300 transform hover:-translate-y-1 inline-block"
                 >
-                  <span className="text-sky-400 text-sm font-medium">{tech}</span>
-                </div>
-              ))}
+                  Contact Me
+                </a>
+              </motion.div>
+            </motion.div>
+          </div>
+        </section>
+
+        {/* About Section */}
+        <motion.section
+          id="about"
+          className="py-12 md:py-16 relative group"
+          variants={sectionVariants}
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, amount: 0.25 }}
+        >
+          <div className="container mx-auto px-4 sm:px-6">
+            <div className="max-w-3xl mx-auto">
+              <motion.h2
+                className="text-3xl md:text-4xl font-bold mb-8 text-center"
+                variants={heroItemVariants}
+              >
+                <span className="bg-clip-text text-transparent bg-gradient-to-r from-sky-500 to-blue-600 dark:from-sky-400 dark:to-blue-500">
+                  About Me
+                </span>
+                <div className="w-20 h-0.5 bg-gradient-to-r from-sky-500 to-blue-600 dark:from-sky-400 dark:to-blue-600 mx-auto mt-3 rounded-full" />
+              </motion.h2>
+
+              <motion.div
+                className="bg-white dark:bg-gray-800/60 dark:backdrop-blur-md border border-gray-200 dark:border-gray-700/70 rounded-xl p-6 md:p-8 space-y-4 shadow-lg dark:shadow-xl"
+                variants={heroItemVariants}
+              >
+                <p className="text-base md:text-lg text-gray-700 dark:text-gray-300 leading-relaxed">
+                  I&apos;m an experienced <span className="text-sky-600 dark:text-sky-400 font-medium">Full-stack Developer</span> building innovative digital solutions. Proficient in <span className="text-sky-600 dark:text-sky-400">React</span>, <span className="text-sky-600 dark:text-sky-400">Next.js</span>, and <span className="text-sky-600 dark:text-sky-400">Node.js</span>.
+                </p>
+                <p className="text-base md:text-lg text-gray-700 dark:text-gray-300 leading-relaxed">
+                  Focused on writing <span className="text-sky-600 dark:text-sky-400">well-structured</span> and <span className="text-sky-600 dark:text-sky-400">high-performance</span> code with strong emphasis on optimal user experience.
+                </p>
+                <p className="text-base md:text-lg text-gray-700 dark:text-gray-300 leading-relaxed">
+                  Active in <span className="text-sky-600 dark:text-sky-400">open-source</span> and continuously developing skills to stay relevant in the dynamic industry.
+                </p>
+              </motion.div>
+
+              <div className="mt-8 grid grid-cols-2 sm:grid-cols-4 gap-3">
+                {['React', 'Next.js', 'TypeScript', 'Node.js', 'Tailwind CSS', 'Git'].map((tech, index) => ( // Menambahkan beberapa tech lagi
+                  <motion.div
+                    key={tech}
+                    className="bg-gray-100 dark:bg-gray-700/50 border border-gray-200 dark:border-gray-600/80 rounded-lg py-2.5 px-3 text-center hover:bg-gray-200 dark:hover:bg-sky-800/40 hover:border-sky-400 dark:hover:border-sky-500/60 transition-all duration-200 shadow-sm hover:shadow-md"
+                    initial={{ opacity: 0, y: 15 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ duration: 0.3, delay: 0.3 + index * 0.07 }}
+                  >
+                    <span className="text-sky-700 dark:text-sky-400 text-sm font-medium">{tech}</span>
+                  </motion.div>
+                ))}
+              </div>
             </div>
           </div>
-        </div>
-      </section>
+        </motion.section>
+      </div> {/* Penutup div wrapper untuk BackgroundBeams */}
 
-      {/* Projects Section */}
-      <section id="projects" className="py-16">
+
+      {/* Bagian di bawah ini TIDAK akan memiliki BackgroundBeams */}
+      <motion.section
+        id="projects"
+        className="py-16 bg-gray-100 dark:bg-gray-900/70" // Sedikit transparan untuk dark agar beda
+        variants={sectionVariants}
+        initial="hidden"
+        whileInView="visible"
+        viewport={{ once: true, amount: 0.15 }}
+      >
         <div className="container mx-auto px-6">
-            <h2 className="text-2xl md:text-3xl font-bold mb-8 text-center">
-              <span className="bg-clip-text text-transparent bg-gradient-to-r from-sky-400 to-blue-500">
+          <motion.h2
+            className="text-3xl md:text-4xl font-bold mb-12 text-center"
+            variants={heroItemVariants}
+          >
+            <span className="bg-clip-text text-transparent bg-gradient-to-r from-sky-500 to-blue-600 dark:from-sky-400 dark:to-blue-500">
               My Projects
-              </span>
-            </h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
-            {projectsData.map((project) => (
-              <ProjectCard key={project.id} project={project} />
+            </span>
+            <div className="w-20 h-0.5 bg-gradient-to-r from-sky-500 to-blue-600 dark:from-sky-400 dark:to-blue-600 mx-auto mt-3 rounded-full" />
+          </motion.h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 md:gap-10">
+            {projectsData.map((project, index) => (
+              <motion.div
+                key={project.id}
+                initial={{ opacity: 0, y: 30, scale: 0.95 }}
+                whileInView={{ opacity: 1, y: 0, scale: 1 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.5, delay: index * 0.1, ease: "easeOut" }}
+              >
+                {/* Pastikan ProjectCard.tsx diupdate untuk styling light/dark mode */}
+                <ProjectCard project={project} />
+              </motion.div>
             ))}
           </div>
           {projectsData.length === 0 && (
-            <p className="text-center text-gray-400">
+            <p className="text-center text-gray-600 dark:text-gray-400 mt-10">
               Projects will be added soon.
             </p>
           )}
         </div>
-      </section>
+      </motion.section>
 
-      {/* Skills Section - Using the Skills Component */}
-      <Skills 
-        skills={skillsData}
-        className="bg-gray-800/30 backdrop-blur-sm"
-      />
+      <motion.div // Wrapper untuk SkillsComponent
+        variants={sectionVariants}
+        initial="hidden"
+        whileInView="visible"
+        viewport={{ once: true, amount: 0.2 }}
+        className="bg-white dark:bg-gray-800/50 dark:backdrop-blur-md" // Atur bg di sini
+      >
+        {/* Pastikan SkillsComponent.tsx diupdate untuk styling light/dark mode */}
+        <SkillsComponent
+          skills={skillsData}
+          // className tidak perlu di sini jika sudah diatur di motion.div
+          // kecuali jika ada styling spesifik yang ingin ditambahkan dari sini
+        />
+        {/* Penanda ID untuk smooth scroll, disembunyikan secara visual */}
+        <div id="skills" className="sr-only"></div>
+      </motion.div>
 
-      {/* Contact Section */}
-      <section id="contact" className="py-16">
+      <motion.section
+        id="contact"
+        className="py-16 bg-gray-100 dark:bg-gray-900/70" // Background berbeda untuk light/dark
+        variants={sectionVariants}
+        initial="hidden"
+        whileInView="visible"
+        viewport={{ once: true, amount: 0.25 }}
+      >
         <div className="container mx-auto px-6 text-center">
-          <h2 className="text-3xl font-bold mb-8 text-sky-400">Contact Me</h2>
-          <p className="text-gray-300 mb-8 max-w-xl mx-auto">
+          <motion.h2
+            className="text-3xl md:text-4xl font-bold mb-10 text-sky-600 dark:text-sky-400"
+            variants={heroItemVariants}
+          >
+            Contact Me
+            <div className="w-20 h-0.5 bg-gradient-to-r from-sky-500 to-blue-600 dark:from-sky-400 dark:to-blue-600 mx-auto mt-3 rounded-full" />
+          </motion.h2>
+          <motion.p
+            className="text-gray-700 dark:text-gray-300 mb-10 max-w-xl mx-auto text-lg"
+            variants={heroItemVariants}
+          >
             Interested in collaboration or have questions? Feel free to reach out.
-          </p>
+          </motion.p>
           <div className="flex flex-col sm:flex-row justify-center items-center space-y-4 sm:space-y-0 sm:space-x-6">
-            <a
-              href="mailto:ahmadadhim01@gmail.com"
-              className="bg-sky-600 hover:bg-sky-700 text-white font-semibold py-3 px-6 rounded-lg transition duration-300 flex items-center"
-            >
-              Send Email
-            </a>
-            <a
-              href="https://linkedin.com/in/usernameanda"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-sky-400 hover:text-sky-300 border border-sky-500 hover:border-sky-400 py-3 px-6 rounded-lg transition duration-300 flex items-center"
-            >
-              LinkedIn
-            </a>
-            <a
-              href="https://github.com/Adhimz1"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-gray-400 hover:text-gray-200 border border-gray-600 hover:border-gray-500 py-3 px-6 rounded-lg transition duration-300 flex items-center"
-            >
-              GitHub
-            </a>
+            {[
+              { href: "mailto:ahmadadhim01@gmail.com", text: "Send Email", style: "bg-sky-500 hover:bg-sky-600 text-white dark:bg-sky-600 dark:hover:bg-sky-700" },
+              { href: "https://linkedin.com/in/usernameanda", text: "LinkedIn", style: "text-sky-600 border-sky-500 hover:bg-sky-500/10 dark:text-sky-400 dark:border-sky-500 dark:hover:bg-sky-500/15 dark:hover:text-sky-300 border" },
+              { href: "https://github.com/Adhimz1", text: "GitHub", style: "text-gray-700 border-gray-500 hover:bg-gray-500/10 dark:text-gray-400 dark:border-gray-600 dark:hover:bg-gray-700/40 dark:hover:text-gray-100 border" },
+            ].map((link, index) => (
+              <motion.a
+                key={link.text}
+                href={link.href}
+                target={link.href.startsWith('http') ? "_blank" : "_self"}
+                rel={link.href.startsWith('http') ? "noopener noreferrer" : undefined}
+                className={`font-semibold py-3 px-8 rounded-lg transition-all duration-300 transform hover:-translate-y-1 flex items-center justify-center text-base min-w-[150px] shadow-md hover:shadow-lg ${link.style}`}
+                initial={{ opacity: 0, y: 20, scale: 0.9 }}
+                whileInView={{ opacity: 1, y: 0, scale: 1 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.4, delay: 0.3 + index * 0.1, ease: "easeOut" }}
+              >
+                {link.text}
+              </motion.a>
+            ))}
           </div>
         </div>
-      </section>
+      </motion.section>
     </>
   );
 }
