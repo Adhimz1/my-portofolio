@@ -30,10 +30,17 @@ export const projectsData: Project[] = [
 ];
 
 export const skillsData: Skill[] = [
-    { id: 1, icon: '/icons/photoshop.png', name: '' },
-    { id: 2, icon: '/icons/Canva_Logo.svg.png', name: '' },
-    { id: 3, icon: '/icons/figma-logo-logo.png', name: '' },
-    { id: 4, icon: '/icons/MySQL_logo.svg.png', name: '' },
-
+  { id: 1, icon: '/icons/photoshop.png', name: 'Photoshop' },
+  { id: 2, icon: '/icons/Canva_Logo.svg.png', name: 'Canva' },
+  { id: 3, icon: '/icons/figma-logo-logo.png', name: 'Figma' },
+  { id: 4, icon: '/icons/corel.png', name: 'CorelDRAW' },
+  { id: 5, icon: '/icons/HTML5_logo_and_wordmark.svg.png', name: 'HTML5' },
+  { id: 6, icon: '/icons/Official_CSS_Logo.svg.png', name: 'CSS3' },
+  { id: 7, icon: '/icons/JavaScript-logo.png', name: 'JavaScript' },
+  { id: 8, icon: '/icons/MySQL_logo.svg.png', name: 'MySQL' },
+  { id: 9, icon: '/icons/Laravel.svg.png', name: 'Laravel' },
+  { id: 10, icon: '/icons/React-icon.svg', name: 'React' },
+  { id: 11, icon: '/icons/nextjs.svg', name: 'Next.js' },
+  { id: 12, icon: '/icons/Tailwind_CSS_Logo.svg', name: 'Tailwind CSS' },
   // Tambahkan skill lainnya dengan path icon sesuai nama file di public/icons/
 ];
