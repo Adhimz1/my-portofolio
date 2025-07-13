@@ -75,8 +75,8 @@ jobs:
             export PATH=$PATH:/home/adhim/.nvm/versions/node/v24.4.0/bin/pnpm # Tambahkan ini jika pm2 ada di path ini dan dibutuhkan
             export PATH=$PATH:/home/adhim/.local/share/pnpm/pm2 # Tambahkan ini jika pm2 ada di path ini dan dibutuhkan
             cd ${{ secrets.VPS_TARGET_PATH }}
-            git pull origin main || true # Pastikan untuk menarik perubahan terbaru jika ada
-            git reset --hard origin/main || true # Pastikan untuk menarik perubahan terbaru jika ada
+            git pull origin master || true # Pastikan untuk menarik perubahan terbaru jika ada
+            git reset --hard origin/master || true # Pastikan untuk menarik perubahan terbaru jika ada
             npx prisma generate || true # Hanya jika Anda menggunakan Prisma
             echo "Running deployment commands at $(date)" >> deployment.log
             echo "Pulled latest changes from repository." >> deployment.log
