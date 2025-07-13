@@ -48,8 +48,8 @@ jobs:
             cd ${{ secrets.VPS_TARGET_PATH }}
             echo "Deployment started at $(date)" >> deployment.log
             # Perintah pm2 stop dan delete tidak diperlukan lagi jika menggunakan startOrRestart
-            # pm2 stop dika || true
-            # pm2 delete dika || true
+            # pm2 stop npm || true
+             pm2 restart npm || true
             # echo "PM2 process stopped/deleted." >> deployment.log
             echo "Initial setup on VPS. Files will be copied next." >> deployment.log
 
