@@ -1,0 +1,115 @@
+name: Deploy Next.js App to VPS
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: "npm"
+
+      - name: Install Dependencies
+        run: npm install --force
+
+      - name: Prepare .env file for production
+        env:
+          ENV_FILE_PRODUCTION: ${{ secrets.ENV_FILE_PRODUCTION }}
+        run: |
+          if [ -n "$ENV_FILE_PRODUCTION" ]; then
+            echo "$ENV_FILE_PRODUCTION" > .env.production
+          fi
+
+      - name: Build Next.js App
+        run: npm run build
+
+      - name: Deploy to VPS via SSH (Initial Commands)
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.VPS_SSH_HOST }}
+          username: ahmadadhim01@gmail.com
+          password: ${{ secrets.VPS_SSH_PASSWORD }}
+          port: 22
+          script: |
+            cd ${{ secrets.VPS_TARGET_PATH }}
+            echo "Deployment started at $(date)" >> deployment.log
+            echo "Initial setup on VPS. Files will be copied next." >> deployment.log
+
+      - name: Copy files to VPS (Build artifacts)
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.VPS_SSH_HOST }}
+          username: ahmadadhim01@gmail.com
+          password: ${{ secrets.VPS_SSH_PASSWORD }}
+          port: 22
+          source: ".next/,public/,package.json,package-lock.json,next.config.js,next.config.mjs,pm2.config.js,.env.production"
+          target: ${{ secrets.VPS_TARGET_PATH }}
+          strip_components: 0
+
+      - name: Execute remote commands on VPS (Final Steps + Nginx)
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.VPS_SSH_HOST }}
+          username: ahmadadhim01@gmail.com
+          password: ${{ secrets.VPS_SSH_PASSWORD }}
+          port: 22
+          script: |
+            export PATH=$PATH:/root/.local/share/pnpm
+            cd ${{ secrets.VPS_TARGET_PATH }}
+
+            # Pull latest source (jaga-jaga)
+            git pull origin main || true
+            git reset --hard origin/main || true
+
+            # Generate Prisma (jika digunakan)
+            npx prisma generate || true
+
+            echo "Running deployment commands at $(date)" >> deployment.log
+
+            # Install dependencies for production
+            npm install --omit=dev --force
+
+            # Jalankan aplikasi dengan PM2
+            pm2 startOrRestart pm2.config.js --env production
+            pm2 save
+
+            echo "PM2 restarted successfully." >> deployment.log
+
+            # INSTALL & CONFIGURE NGINX
+            echo "Installing Nginx..." >> deployment.log
+            sudo apt update -y
+            sudo apt install nginx -y
+
+            # Setup Nginx config (misal: /etc/nginx/sites-available/nextjs-app)
+            sudo bash -c 'cat > /etc/nginx/sites-available/nextjs-app' <<EOF
+            server {
+              listen 80;
+              server_name _;
+              location / {
+                proxy_pass http://localhost:3000;
+                proxy_http_version 1.1;
+                proxy_set_header Upgrade \$http_upgrade;
+                proxy_set_header Connection 'upgrade';
+                proxy_set_header Host \$host;
+                proxy_cache_bypass \$http_upgrade;
+              }
+            }
+EOF
+
+            # Enable config & restart Nginx
+            sudo ln -sf /etc/nginx/sites-available/nextjs-app /etc/nginx/sites-enabled/default
+            sudo nginx -t && sudo systemctl restart nginx
+
+            echo "Nginx installed and configured." >> deployment.log
+            echo "Deployment finished successfully at $(date)" >> deployment.log
+            echo "--------------------------------------" >> deployment.log
