@@ -22,7 +22,7 @@ export const projectsData: Project[] = [
     title: 'Spareparts shop',
     description: 'A spare parts shop provides a variety of components and accessories needed to repair or maintain vehicles and machinery.',
     imageUrl: '/toko-sparepart.png', // Make sure the image exists in public/images/
-    liveUrl: '#',
+    liveUrl: 'https://toko.adhimz.tech/',
     repoUrl: '#',
     tags: ['Laravel', 'Tailwind', 'Javascript','MySQL'],
   },
