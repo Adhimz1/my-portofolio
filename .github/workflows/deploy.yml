@@ -1,90 +1,55 @@
-name: Deploy Next.js App to VPS
+name: Deploy Next.js to Azure VM
 
 on:
   push:
     branches:
-      - master # Atau branch lain yang Anda gunakan untuk produksi
+      - master # Sesuaikan dengan nama branch utama Anda
 
 jobs:
-  build-and-deploy:
+  deploy:
     runs-on: ubuntu-latest
-
+    
     steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v4
+    - name: Checkout repository
+      uses: actions/checkout@v4
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: "22" # Sesuaikan dengan versi Node.js yang Anda gunakan
-          cache: "npm" # Atau 'yarn' jika Anda menggunakan Yarn
+    - name: Setup SSH
+      uses: webfactory/ssh-agent@v0.9.0
+      with:
+        ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }} # Gunakan secret yang sama
 
-      - name: Install Dependencies
-        run: npm install --force # Atau yarn install
+    - name: Deploy to Server
+      run: |
+        ssh -o StrictHostKeyChecking=no ${{ secrets.SSH_USERNAME }}@${{ secrets.SSH_HOST }} << 'EOF'
+          
+          echo "=> Memulai deployment portofolio..."
+          cd /var/www/html/portofolio # Pindah ke folder portofolio
+          
+          # Ambil alih kepemilikan untuk deployment
+          echo "=> 1. Mengatur izin..."
+          sudo chown -R ${{ secrets.SSH_USERNAME }}:${{ secrets.SSH_USERNAME }} .
+          
+          # Tarik kode terbaru
+          echo "=> 2. Menarik kode dari GitHub..."
+          git reset --hard # Hapus perubahan lokal di server
+          git pull origin master
+          
+          # Instal dependensi dan build
+          echo "=> 3. Instal & Build..."
+          export NVM_DIR="$HOME/.nvm"
+          [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+          npm install
+          npm run build
+          
+          # Restart aplikasi dengan PM2
+          echo "=> 4. Restart aplikasi..."
+          pm2 startOrRestart npm --name "portofolio" -- start
+          pm2 save
 
-      - name: Prepare .env file for production
-        env:
-          ENV_FILE_PRODUCTION: ${{ secrets.ENV_FILE_PRODUCTION }}
-        run: |
-          if [ -n "$ENV_FILE_PRODUCTION" ]; then
-            echo "$ENV_FILE_PRODUCTION" > .env.production
-          fi
+          # Kembalikan kepemilikan ke www-data
+          echo "=> 5. Mengembalikan izin..."
+          sudo chown -R www-data:www-data .
 
-      - name: Build Next.js App
-        run: npm run build # Atau yarn build
+          echo "✅ Deployment portofolio selesai!"
 
-      - name: Deploy to VPS via SSH (Initial Commands)
-        uses: appleboy/ssh-action@master
-        with:
-          host: ${{ secrets.VPS_SSH_HOST }}
-          username: ${{ secrets.VPS_SSH_USERNAME }}
-          password: ${{ secrets.VPS_SSH_PASSWORD }} # Menggunakan password
-          port: 22 # Port SSH default, sesuaikan jika berbeda
-          script: |
-            # Baris export PATH mungkin tidak lagi dibutuhkan di sini jika pm2 global
-            # atau dipindahkan ke langkah final. Jika tidak ada perintah lain,
-            # langkah ini bisa disederhanakan atau digabung.
-            # export PATH=$PATH:/root/.local/share/pnpm # Pindahkan jika perlu untuk pm2 di langkah final
-            cd ${{ secrets.VPS_TARGET_PATH }}
-            echo "Deployment started at $(date)" >> deployment.log
-            # Perintah pm2 stop dan delete tidak diperlukan lagi jika menggunakan startOrRestart
-            # pm2 stop npm || true
-             pm2 restart npm || true
-            # echo "PM2 process stopped/deleted." >> deployment.log
-            echo "Initial setup on VPS. Files will be copied next." >> deployment.log
-
-      - name: Copy files to VPS (Build artifacts)
-        uses: appleboy/scp-action@v0.1.7
-        with:
-          host: ${{ secrets.VPS_SSH_HOST }}
-          username: ${{ secrets.VPS_SSH_USERNAME }}
-          password: ${{ secrets.VPS_SSH_PASSWORD }} # Menggunakan password
-          port: 22
-          source: ".next/,public/,package.json,package-lock.json,next.config.js,next.config.mjs,pm2.config.js,.env.production" # Sesuaikan daftar file/folder
-          target: ${{ secrets.VPS_TARGET_PATH }}
-          strip_components: 0 # Sesuaikan jika perlu
-
-      - name: Execute remote commands on VPS (Final Steps)
-        uses: appleboy/ssh-action@master
-        with:
-          host: ${{ secrets.VPS_SSH_HOST }}
-          username: ${{ secrets.VPS_SSH_USERNAME }}
-          password: ${{ secrets.VPS_SSH_PASSWORD }} # Menggunakan password
-          port: 22
-          script: |
-            export PATH=$PATH:/home/adhim/.nvm/versions/node/v24.4.0/bin/pnpm # Tambahkan ini jika pm2 ada di path ini dan dibutuhkan
-            export PATH=$PATH:/home/adhim/.local/share/pnpm/pm2 # Tambahkan ini jika pm2 ada di path ini dan dibutuhkan
-            cd ${{ secrets.VPS_TARGET_PATH }}
-            git pull origin master || true # Pastikan untuk menarik perubahan terbaru jika ada
-            git reset --hard origin/master || true # Pastikan untuk menarik perubahan terbaru jika ada
-            npx prisma generate || true # Hanya jika Anda menggunakan Prisma
-            echo "Running deployment commands at $(date)" >> deployment.log
-            echo "Pulled latest changes from repository." >> deployment.log
-            echo "Files copied. Running server-side commands at $(date)" >> deployment.log
-            npm install --omit=dev --force # Atau yarn install --production
-            echo "Dependencies installed on server." >> deployment.log
-            pm2 startOrRestart pm2.config.js --env production # Menggunakan startOrRestart
-            echo "PM2 process restarted/started." >> deployment.log
-            pm2 save
-            echo "Deployment finished successfully at $(date)" >> deployment.log
-            echo "--------------------------------------" >> deployment.log
+        EOF
