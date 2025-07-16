@@ -19,12 +19,21 @@ export interface Skill {
 export const projectsData: Project[] = [
   {
     id: 1,
+    title: 'spare parts shop',
+    description: 'A spare parts shop provides a variety of components and accessories needed to repair or maintain vehicles and machinery.',
+    imageUrl: '/toko-sparepart.png', // Make sure the image exists in public/images/
+    liveUrl: '#',
+    repoUrl: '#',
+    tags: ['Laravel', 'Tailwind', 'Javascript','MySQL'],
+  },
+  {
+    id: 2,
     title: 'Food Ordering Application',
     description: 'A web application for ordering food online.',
     imageUrl: '/mangoman.png', // Make sure the image exists in public/images/
     liveUrl: '#',
     repoUrl: '#',
-    tags: ['PHP Native', 'CSS', 'Javascript'],
+    tags: ['Next.js', 'Tailwind CSS', 'TypeScript'],
   },
   // Add more projects here
 ];
