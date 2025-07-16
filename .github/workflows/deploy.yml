@@ -39,8 +39,8 @@ jobs:
           npm run build
           
           echo "=> 4. Restart aplikasi..."
-          # PERBAIKAN DI SINI
-          pm2 startOrRestart npm --name "portofolio" -- run start
+          # PERBAIKAN FINAL DI SINI: Jalankan 'next' secara langsung
+          pm2 startOrRestart node_modules/next/dist/bin/next --name "portofolio" -- start
           pm2 save
 
           echo "=> 5. Mengembalikan izin..."
