@@ -16,37 +16,33 @@ jobs:
     - name: Setup SSH
       uses: webfactory/ssh-agent@v0.9.0
       with:
-        ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }} # Gunakan secret yang sama
+        ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
 
     - name: Deploy to Server
       run: |
         ssh -o StrictHostKeyChecking=no ${{ secrets.SSH_USERNAME }}@${{ secrets.SSH_HOST }} << 'EOF'
           
           echo "=> Memulai deployment portofolio..."
-          cd /var/www/html/portofolio # Pindah ke folder portofolio
+          cd /var/www/html/portofolio
           
-          # Ambil alih kepemilikan untuk deployment
           echo "=> 1. Mengatur izin..."
           sudo chown -R ${{ secrets.SSH_USERNAME }}:${{ secrets.SSH_USERNAME }} .
           
-          # Tarik kode terbaru
           echo "=> 2. Menarik kode dari GitHub..."
-          git reset --hard # Hapus perubahan lokal di server
+          git reset --hard
           git pull origin master
           
-          # Instal dependensi dan build
           echo "=> 3. Instal & Build..."
           export NVM_DIR="$HOME/.nvm"
           [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
           npm install
           npm run build
           
-          # Restart aplikasi dengan PM2
           echo "=> 4. Restart aplikasi..."
-          pm2 startOrRestart npm --name "portofolio" -- start
+          # PERBAIKAN DI SINI
+          pm2 startOrRestart npm --name "portofolio" -- run start
           pm2 save
 
-          # Kembalikan kepemilikan ke www-data
           echo "=> 5. Mengembalikan izin..."
           sudo chown -R www-data:www-data .
 
