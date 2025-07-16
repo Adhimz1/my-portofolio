@@ -19,7 +19,7 @@ export interface Skill {
 export const projectsData: Project[] = [
   {
     id: 1,
-    title: 'spare parts shop',
+    title: 'Spareparts shop',
     description: 'A spare parts shop provides a variety of components and accessories needed to repair or maintain vehicles and machinery.',
     imageUrl: '/toko-sparepart.png', // Make sure the image exists in public/images/
     liveUrl: '#',
